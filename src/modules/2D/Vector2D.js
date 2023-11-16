@@ -18,7 +18,7 @@ class Vector2D {
         this.y *= Scalar;
         return this;
     }
-    vectorMutliply(Vector) {
+    vectorMultiply(Vector) {
         this.x *= Vector.x;
         this.y *= Vector.y;
         return this;

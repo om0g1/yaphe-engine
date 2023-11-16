@@ -1,4 +1,6 @@
 import Particle2D from "./Particle2D.js";
+import SoftBody2D from "./SoftBody2D.js";
+import Spring2D from "./Spring.js";
 import Vector2D from "./Vector2D.js";
 
 class PhysicsWorld2D {
@@ -8,17 +10,20 @@ class PhysicsWorld2D {
         this.canvas = null;
         this.pen = null;
         this.particles = [];
+        this.spring = [];
         this.softBodies = [];
         this.gravity = true;
         this.Gravity = new Vector2D(0, 1);
         this.parentElement = document.querySelector(parent);
         this.mousePos = new Vector2D();
         this.center = new Vector2D();
+        this.dragForce = 0.98;
         this.boundary = {
             start: new Vector2D(),
             end: new Vector2D()
         }
         this.gravity = new Vector2D();
+        this.reflectApplyReactionForce = false;
     }
     createCanvas(width = null, height = null) {
         this.canvas = document.createElement("canvas");
@@ -147,18 +152,64 @@ class PhysicsWorld2D {
         
         return particle;
     }
+    createSpring(a = null, b = null, stiffness = 0.1) {
+        const spring = new Spring2D(this.pen, a, b);
+        this.springs.push(spring);
+        return spring;
+    }
+    isDuplicateSpring(a = null, b = null) {
+        this.springs.forEach((spring) => {
+            if (spring.a === a && spring.b === b) {
+                return true;
+            }
+        })
+        return false;
+    }
+    createSpring(a = null, b = null) {
+        if (this.isDuplicateSpring(a, b)) return false;
+
+        const spring = new Spring2D(this.pen, a, b, 0.01);
+        this.springs.push(spring);
+        return spring;
+    }
+    createSoftBody(particles = null) {
+        const softBody = new SoftBody2D(this, 3, 3);
+        this.softBodies.push(softBody);
+        return softBody;
+    }
     handleParticles() {
         this.particles.forEach((particle) => {
-            particle.applyForce(this.Gravity);
+            
+            if (this.gravity) { //If gravity is true apply gravity
+                particle.applyForce(this.Gravity);
+            }
+            
+            if (particle.isOutOfBoundary(this.boundary)) { //Reflect particle if it hits the boundary
+                particle.constrain(this.boundary); //Prevent the particle from leaving the boundary
+                
+                if (particle.isOnFloor(this.boundary)) {
+                    particle.applyForce(particle.velocity.scalarMultiply(-1));
+                }
+            }
+            particle.velocity.scalarMultiply(this.dragForce);
+
             particle.update();
-            particle.constrain(this.boundary);
+        })
+    }
+    handleSprings() {
+        this.springs.forEach((spring) => {
+            spring.update();
         })
     }
     update() {
+        this.handleSprings()
         this.handleParticles();
     }
     show() {
-        this.pen.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.pen.clearRect(0, 0, this.canvas.width, this.canvas.height); //Clear the canvas after every delta frame
+        this.springs.forEach((spring) => {
+            spring.show();
+        })
         this.particles.forEach((particle) => {
             particle.show();
         })

@@ -11,6 +11,15 @@ class Particle2D {
         this.velocity = new Vector2D();
         this.acceleration = new Vector2D();
         this.deltaTime = deltaTime;
+        this.mouseLocked = false;
+        this.locked = false;
+        this.drawStyle = {
+            fill: true,
+            stroke: false,
+            fillColor: "black",
+            strokeColor: "blue",
+            strokeWidth: 3
+        }
     }
     isOnCeiling(boundary) {
         return this.position.y <= boundary.start.y + this.radius;
@@ -32,10 +41,10 @@ class Particle2D {
     }
     isOutOfBoundary(boundary) {
         return (
-            this.position.x <= boundary.start.x + this.radius ||
-            this.position.y <= boundary.start.y + this.radius ||
-            this.position.x >= boundary.end.x - this.radius ||
-            this.position.y >= boundary.end.y - this.radius
+            this.position.x < boundary.start.x + this.radius ||
+            this.position.y < boundary.start.y + this.radius ||
+            this.position.x > boundary.end.x - this.radius ||
+            this.position.y > boundary.end.y - this.radius
         )
     }
     applyForce(forceVector) {
@@ -44,14 +53,41 @@ class Particle2D {
         this.acceleration.add(force);
     }
     update() {
+        if (this.locked || this.mouseLocked) return;
+
         this.velocity.add(this.acceleration.scalarMultiply(this.deltaTime));
         this.position.add(this.velocity);
         this.acceleration.scalarMultiply(0);
     }
     show() {
+        let tempFillColor = null;
+        let tempStrokeColor = null;
+        let tempStokeWidth = null;
+
+        if (this.pen.fillStyle != this.drawStyle.fillColor) {
+            tempFillColor = this.pen.fillColor;
+            this.pen.fillStyle = this.drawStyle.fillColor;
+        }
+        if (this.pen.strokeStyle != this.drawStyle.strokeColor) {
+            tempStrokeColor = this.pen.strokeStyle;
+            this.pen.strokeStyle = this.drawStyle.strokeColor;
+        }
+        if (this.pen.lineWidth != this.drawStyle.strokeWidth) {
+            tempStokeWidth = this.pen.lineWidth;
+            this.pen.lineWidth = this.drawStyle.strokeWidth;
+        }
+
         this.pen.beginPath();
         this.pen.arc(this.position.x, this.position.y, this.radius, 0, twoPI);
-        this.pen.fill();
+
+        if (this.drawStyle.fill) { this.pen.fill() };
+        if (this.drawStyle.stroke) { this.pen.stroke() };
+
+        if (tempFillColor != null) { this.pen.fillColor = tempFillColor };
+        if (tempStrokeColor != null) { this.pen.strokeColor = tempStrokeColor };
+        if (tempStokeWidth != null) { this.pen.lineWidth = tempStokeWidth };
+
+        this.pen.closePath();
     }
 }
 
