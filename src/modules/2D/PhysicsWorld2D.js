@@ -203,13 +203,13 @@ class PhysicsWorld2D {
     }
     handleSoftBodies() {
         this.softBodies.forEach((body) => {
-            body.applyInternalPressure();
+            body.update();
         })
     }
     update() {
-        this.handleSoftBodies();
         this.handleSprings()
         this.handleParticles();
+        this.handleSoftBodies();
     }
     show() {
         this.pen.clearRect(0, 0, this.canvas.width, this.canvas.height); //Clear the canvas after every delta frame

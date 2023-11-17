@@ -16,6 +16,7 @@ class SoftBody2D {
         this.particleMass = 5;
         this.particleRadius = 20;
         this.parentWorld = parentWorld;
+        this.center = new Vector2D();
         this.position = parentWorld.center.copy().subtract(new Vector2D(200, 200));
     }
     createGeometry(width = this.width, height = this.height) {
@@ -58,6 +59,7 @@ class SoftBody2D {
             for (let x = 0; x < this.particles[y].length; x++) {
                 if (x === 0 || y === 0 || x === this.particles[y].length - 1 || y === this.particles.length - 1) {
                     borderParticlesSet.add(this.particles[y][x]);
+                    this.borderParticles.push(this.particles[y][x]);
                 }
             }
         }
@@ -82,13 +84,13 @@ class SoftBody2D {
         return pressure;
     }
     applyInternalPressure() {
-        const pressure = this.getPressure();
-        console.log(pressure);
-        this.borderSprings.forEach((spring, i) => {
-            const direction = spring.getNormalDirection();
-            const force = direction.scalarMultiply(pressure * spring.getLength());
-            spring.anchors.a.applyForce(force);
-            spring.anchors.b.applyForce(force);
+        // const pressure = this.getPressure();
+        this.borderParticles.forEach((particle, i) => {
+            const force = particle.position.copy().subtract(this.center);
+            const displacement = force.magnitude() - particle.position.distance(this.center);
+            force.normalize();
+            force.scalarMultiply(5);
+            particle.applyForce(force);
         })
     }
     getNeighbours(x, y) {
@@ -115,6 +117,11 @@ class SoftBody2D {
             y > -1 &&
             y < this.particles.length 
         )
+    }
+    update() {
+        this.center.x = (this.width * this.spacing / 2) + this.particles[0][0].position.x;
+        this.center.y = (this.height * this.spacing / 2) + this.particles[0][0].position.y;
+        this.applyInternalPressure();
     }
     show() {
         this.springs.forEach((spring) => {
