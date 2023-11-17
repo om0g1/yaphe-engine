@@ -17,7 +17,7 @@ class PhysicsWorld2D {
         this.parentElement = document.querySelector(parent);
         this.mousePos = new Vector2D();
         this.center = new Vector2D();
-        this.dragForce = 0.98;
+        this.dragForce = 0.985;
         this.boundary = {
             start: new Vector2D(),
             end: new Vector2D()
@@ -201,7 +201,13 @@ class PhysicsWorld2D {
             spring.update();
         })
     }
+    handleSoftBodies() {
+        this.softBodies.forEach((body) => {
+            body.applyInternalPressure();
+        })
+    }
     update() {
+        this.handleSoftBodies();
         this.handleSprings()
         this.handleParticles();
     }

@@ -17,6 +17,17 @@ class Spring2D {
             width: 1
         }
     }
+    getLength() {
+        this.getForceAndDisplacement();
+        const length = this.restLength + this.displacement;
+        return length;
+    }
+    getNormalDirection() {
+        const lineVector = this.anchors.b.position.copy().subtract(this.anchors.a.position);
+        const normalDirection = new Vector2D(lineVector.y, -lineVector.x);
+        normalDirection.normalize();
+        return normalDirection; 
+    }
     getForceAndDisplacement() {
         const aPostion = this.anchors.a.position.copy();
         const bPostion = this.anchors.b.position.copy();
@@ -49,7 +60,7 @@ class Spring2D {
         }
         if (this.pen.strokeStyle != this.drawStyle.strokeColor) {
             tempLineColor = this.pen.strokeStyle;
-            this.pen.strokeStyle = this.drawStyle.strokeColor;
+            this.pen.strokeStyle = this.drawStyle.color;
         }
 
         this.stretchSpringLine();
