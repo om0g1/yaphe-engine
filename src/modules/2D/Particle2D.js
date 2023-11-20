@@ -11,8 +11,10 @@ class Particle2D {
         this.velocity = new Vector2D();
         this.acceleration = new Vector2D();
         this.deltaTime = deltaTime;
+        this.time = 1 / deltaTime;
         this.mouseLocked = false;
         this.locked = false;
+        this.internalPressureDirection = new Vector2D();
         this.drawStyle = {
             fill: true,
             stroke: false,
@@ -20,6 +22,32 @@ class Particle2D {
             strokeColor: "blue",
             strokeWidth: 3
         }
+    }
+    handleCollisions(particles) {
+        particles.forEach((particle) => {
+            const distance = this.position.distance(particle.position);
+            if (distance <= this.radius + particle.radius && distance != 0) {
+                this.deflect(particle);
+            }
+        })
+    }
+    deflect(particle) {
+        const distance = this.position.distance(particle.position);
+        
+        if (distance == 0) return;
+
+        const relativeVelocity = this.velocity.copy().subtract(particle.velocity);
+        const normalVector = this.position.copy().subtract(particle.position).scalarDivide(distance);
+        const impactForce = 2 * relativeVelocity.dot(normalVector) / (this.mass + particle.mass);
+
+        const forceX = impactForce * normalVector.x;
+        const forceY = impactForce * normalVector.y;
+
+        this.velocity.x += forceX / this.mass;
+        this.velocity.y += forceY / this.mass;
+
+        particle.velocity.x -= forceX / particle.mass;
+        particle.velocity.y -= forceY / particle.mass;
     }
     isOnCeiling(boundary) {
         return this.position.y <= boundary.start.y + this.radius;
@@ -55,9 +83,12 @@ class Particle2D {
     update() {
         if (this.locked || this.mouseLocked) return;
 
-        this.velocity.add(this.acceleration.scalarMultiply(this.deltaTime));
+        this.velocity.add(this.acceleration.scalarMultiply(this.deltaTime * 6));
         this.position.add(this.velocity);
         this.acceleration.scalarMultiply(0);
+    }
+    positionCopy() {
+        return new Vector2D(this.position.x, this.position.y);
     }
     show() {
         let tempFillColor = null;

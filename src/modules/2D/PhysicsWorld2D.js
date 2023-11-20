@@ -23,7 +23,7 @@ class PhysicsWorld2D {
             end: new Vector2D()
         }
         this.gravity = new Vector2D();
-        this.reflectApplyReactionForce = false;
+        this.applyReactionForce = true;
     }
     createCanvas(width = null, height = null) {
         this.canvas = document.createElement("canvas");
@@ -76,13 +76,13 @@ class PhysicsWorld2D {
                 this.particleClosestToMouse = null;
             }
         }
-        this.canvas.onmouseleave = () => {
-            if (this.particleClosestToMouse != null) {
-                this.particleClosestToMouse.mouseLocked = false;
-                this.canvas.style.cursor = "auto";
-                this.particleClosestToMouse = null;
-            }
-        }
+        // this.canvas.onmouseleave = () => {
+        //     if (this.particleClosestToMouse != null) {
+        //         this.particleClosestToMouse.mouseLocked = false;
+        //         this.canvas.style.cursor = "auto";
+        //         this.particleClosestToMouse = null;
+        //     }
+        // }
         this.canvas.ontouchstart = (e) => {
             this.handleGrabParticle(e.touches[0].clientX, e.touches[0].clientY);
             this.moveParticle(e.touches[0].clientX, e.touches[0].clientY);
@@ -187,10 +187,13 @@ class PhysicsWorld2D {
             if (particle.isOutOfBoundary(this.boundary)) { //Reflect particle if it hits the boundary
                 particle.constrain(this.boundary); //Prevent the particle from leaving the boundary
                 
-                if (particle.isOnFloor(this.boundary)) {
-                    particle.applyForce(particle.velocity.scalarMultiply(-1));
+                if (particle.isOnFloor(this.boundary) && this.applyReactionForce) {
+                    particle.velocity.y *= -1;
                 }
             }
+
+            particle.handleCollisions(this.particles);
+
             particle.velocity.scalarMultiply(this.dragForce);
 
             particle.update();

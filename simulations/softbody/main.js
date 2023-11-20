@@ -8,7 +8,7 @@ const softbody = softbodyWorld.createSoftBody();
 softbody.spacing = 70;
 softbody.stiffness = 0.15;
 softbody.particleRadius = 16;
-softbody.createGeometry(5, 5);
+softbody.createRectangle(4, 4);
 softbody.borderSprings.forEach((spring) => {
     spring.drawStyle.color = "red";
 })
