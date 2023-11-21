@@ -6,5 +6,6 @@ const a = springWorld.createParticle2D(springWorld.center.x, springWorld.center.
 a.locked = true;
 const b = springWorld.createParticle2D(springWorld.center.x, springWorld.center.y + 100);
 const spring = springWorld.createSpring(a, b);
+spring.constrainLength = spring.restLength;
 
 yapheEngine.ingnite();

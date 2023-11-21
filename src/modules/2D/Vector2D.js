@@ -1,4 +1,4 @@
-class VectorD {
+class Vector2D {
     constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
@@ -28,7 +28,7 @@ class VectorD {
         this.y /= Scalar;
         return this;
     }
-    vectorDivide(Vector) {
+    Vector2Divide(Vector) {
         this.x /= Vector.x;
         this.y /= Vector.y;
         return this;
@@ -84,8 +84,8 @@ class VectorD {
     }
     
     copy() {
-        return new VectorD(this.x, this.y);
+        return new Vector2D(this.x, this.y);
     }
 }
 
-export default VectorD;
+export default Vector2D;

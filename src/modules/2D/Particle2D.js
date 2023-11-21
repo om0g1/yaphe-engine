@@ -32,22 +32,22 @@ class Particle2D {
         })
     }
     deflect(particle) {
-        const distance = this.position.distance(particle.position);
+        // const distance = this.position.distance(particle.position);
         
-        if (distance == 0) return;
+        // if (distance == 0) return;
 
-        const relativeVelocity = this.velocity.copy().subtract(particle.velocity);
-        const normalVector = this.position.copy().subtract(particle.position).scalarDivide(distance);
-        const impactForce = 2 * relativeVelocity.dot(normalVector) / (this.mass + particle.mass);
+        // //u1m1 + u2m2 = v1m1 + v2m2
+        // const relativeVelocity = this.velocity.copy().subtract(particle.velocity);
+        // const normalVector = this.position.copy().subtract(particle.position).scalarDivide(distance);
+        // const impactForce = this.deltaTime * relativeVelocity.dot(normalVector) / (this.mass + particle.mass);
 
-        const forceX = impactForce * normalVector.x;
-        const forceY = impactForce * normalVector.y;
+        // const forceX = impactForce * normalVector.x;
+        // const forceY = impactForce * normalVector.y;
 
-        this.velocity.x += forceX / this.mass;
-        this.velocity.y += forceY / this.mass;
-
-        particle.velocity.x -= forceX / particle.mass;
-        particle.velocity.y -= forceY / particle.mass;
+        // const force = new Vector2D(forceX, forceY).scalarMultiply(1.2);
+        
+        // this.applyForce(force);
+        // particle.applyForce(force.scalarMultiply(-1))
     }
     isOnCeiling(boundary) {
         return this.position.y <= boundary.start.y + this.radius;
@@ -83,9 +83,10 @@ class Particle2D {
     update() {
         if (this.locked || this.mouseLocked) return;
 
-        this.velocity.add(this.acceleration.scalarMultiply(this.deltaTime * 6));
+        this.velocity.add(this.acceleration.scalarMultiply(this.deltaTime));
         this.position.add(this.velocity);
         this.acceleration.scalarMultiply(0);
+        this.velocity.scalarMultiply(0.98);
     }
     positionCopy() {
         return new Vector2D(this.position.x, this.position.y);

@@ -1,6 +1,5 @@
 import Vector2D from "./Vector2D.js";
 
-
 class SoftBody2D {
     constructor (parentWorld = null, width = 2, height = 2) {
         this.springs = [];

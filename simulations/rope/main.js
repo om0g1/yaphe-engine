@@ -5,10 +5,12 @@ const yapheEngine = new YapheEngine({element: ".yaphe-simulation"});
 const ropeWorld = yapheEngine.createWorld2D();
 ropeWorld.gravity = false;
 
-const rope = ropeWorld.createSoftBody();
-rope.particleRadius = 5;
+const rope = ropeWorld.createRope();
+rope.length = 20;
+rope.particleRadius = 2;
 rope.spacing = 10;
-rope.stiffness = 0.8;
-rope.createRectangle(1, 20);
+rope.constrainLength = 20;
+rope.stiffness = 0.1;
+rope.linkParticles();
 
 yapheEngine.ingnite();

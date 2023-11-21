@@ -1,4 +1,5 @@
 import PhysicsWorld2D from "./2D/PhysicsWorld2D.js";
+import Vector2D from "./2D/Vector2D.js";
 
 class YapheEngine {
     constructor(constructors = {element: null}) {
@@ -18,6 +19,10 @@ class YapheEngine {
         this.world2Ds.push(world2D);
         
         return world2D;
+    }
+    createVector2D(x = 0, y = 0) {
+        const vector = new Vector2D(x, y);
+        return vector;
     }
     start() {
         

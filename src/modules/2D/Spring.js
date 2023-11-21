@@ -16,6 +16,8 @@ class Spring2D {
             color: "black",
             width: 1
         }
+        this.constrainLength = 0;
+        this.parentWorld = null;
     }
     getLength() {
         this.getForceAndDisplacement();
@@ -44,11 +46,36 @@ class Spring2D {
         const shrinkRatio = 0.005;
         this.drawStyle.width = this.width - (this.displacement * shrinkRatio);
     }
+    constrainParticlePosition(a, b) {
+        if (this.constrainLength > 0) {
+            if (b.locked) return;
+
+            const distance = a.position.distance(b.position);
+            if (distance > this.constrainLength) {
+                this.force.scalarMultiply(0);
+                if (!b.mouseLocked) {
+                    const direction = b.position.copy().subtract(a.position);
+                    direction.normalize();
+                    b.position = a.position.copy().add(direction.scalarMultiply(this.constrainLength))
+                } else {
+                    const angle = a.position.angleAround(this.parentWorld.mousePos, b.position);
+                    const newPosition = a.position.copy().add(new Vector2D(-1, 0).scalarMultiply(this.constrainLength));
+                    
+                    newPosition.rotateAround(this.parentWorld.mousePos, angle);
+                    
+                    b.position = newPosition;
+                }
+            }
+        }
+    }
     update() {
         this.getForceAndDisplacement();
         this.anchors.a.applyForce(this.force);
+        this.constrainParticlePosition(this.anchors.a, this.anchors.b);
         this.force.scalarMultiply(-1);
         this.anchors.b.applyForce(this.force);
+        this.constrainParticlePosition(this.anchors.b, this.anchors.a);
+
     }
     show() {
         let tempLineWidth = null;

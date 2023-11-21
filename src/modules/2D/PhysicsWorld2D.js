@@ -2,6 +2,7 @@ import Particle2D from "./Particle2D.js";
 import SoftBody2D from "./SoftBody2D.js";
 import Spring2D from "./Spring.js";
 import Vector2D from "./Vector2D.js";
+import Rope2D from "./rope2D.js";
 
 class PhysicsWorld2D {
     constructor(parent) {
@@ -12,6 +13,7 @@ class PhysicsWorld2D {
         this.particles = [];
         this.spring = [];
         this.softBodies = [];
+        this.ropes = [];
         this.gravity = true;
         this.Gravity = new Vector2D(0, 1);
         this.parentElement = document.querySelector(parent);
@@ -55,6 +57,10 @@ class PhysicsWorld2D {
         //Add the canvas to the page
         this.parentElement.appendChild(this.canvas);
         this.initializeInputHandler();
+    }
+    createVector2D(x = 0, y = 0) {
+        const vector = new Vector2D(x, y);
+        return vector;
     }
     initializeInputHandler() {
         this.canvas.onmousedown = (e) => {
@@ -145,17 +151,12 @@ class PhysicsWorld2D {
             particle = new Particle2D(this.pen, x, y);
         }
         
-        particle.deltaTime = this.deltaTime;
+        particle.deltaTime = this.deltaTime * 5;
 
         //append the particle to the particles array
         this.particles.push(particle);
         
         return particle;
-    }
-    createSpring(a = null, b = null, stiffness = 0.1) {
-        const spring = new Spring2D(this.pen, a, b);
-        this.springs.push(spring);
-        return spring;
     }
     isDuplicateSpring(a = null, b = null) {
         this.springs.forEach((spring) => {
@@ -165,12 +166,20 @@ class PhysicsWorld2D {
         })
         return false;
     }
-    createSpring(a = null, b = null) {
+    createSpring(a = null, b = null, stiffness = 0.1) {
         if (this.isDuplicateSpring(a, b)) return false;
 
-        const spring = new Spring2D(this.pen, a, b, 0.01);
+        const spring = new Spring2D(this.pen, a, b, stiffness);
+        spring.parentWorld = this;
         this.springs.push(spring);
         return spring;
+    }
+    createRope(x = this.center.x, y = this.center.y - 100, length = 10) {
+        const rope = new Rope2D(x, y, length);
+        rope.parentWorld = this;
+
+        this.ropes.push(rope);
+        return rope;
     }
     createSoftBody(particles = null) {
         const softBody = new SoftBody2D(this, 3, 3);
@@ -204,6 +213,11 @@ class PhysicsWorld2D {
             spring.update();
         })
     }
+    handleRopes() {
+        this.ropes.forEach((rope) => {
+            rope.show();
+        })
+    }
     handleSoftBodies() {
         this.softBodies.forEach((body) => {
             body.update();
@@ -212,6 +226,7 @@ class PhysicsWorld2D {
     update() {
         this.handleSprings()
         this.handleParticles();
+        this.handleRopes();
         this.handleSoftBodies();
     }
     show() {
